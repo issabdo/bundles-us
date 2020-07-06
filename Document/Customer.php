@@ -1,0 +1,105 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: florian
+ * Date: 16/05/16
+ * Time: 21:32
+ */
+
+namespace Us\Bundle\SecurityBundle\Document;
+
+use Us\Bundle\SecurityBundle\Document\Traits\UserBaseInformations;
+use Doctrine\Common\Collections\ArrayCollection;
+use Us\Bundle\SecurityBundle\Document\User as SecurityUser;
+use Us\Bundle\SecurityBundle\Document\Embedded\Address;
+use Doctrine\ODM\MongoDB\Mapping\Annotations as ODM;
+use Gedmo\Mapping\Annotation as Gedmo;
+use Symfony\Component\Validator\Constraints as Assert;
+use Us\Bundle\SecurityBundle\Document\Embedded\CustomerTimeline;
+
+/**
+ * @ODM\Document(collection="users")
+ */
+class Customer extends SecurityUser
+{
+    use UserBaseInformations;
+
+    protected $type = 'CUSTOMER';
+
+    /**
+     * @ODM\Field(type="string")
+     */
+    protected $email;
+
+    /**
+     * @ODM\EmbedMany(targetDocument="\Us\Bundle\SecurityBundle\Document\Embedded\Address")
+     */
+    protected $addresses;
+
+    /**
+     * @ODM\EmbedOne(targetDocument="\Us\Bundle\SecurityBundle\Document\Embedded\CustomerTimeline")
+     */
+    protected $timeline;
+
+    public function __construct()
+    {
+        if (!$this->addresses) {
+            $this->addresses = new ArrayCollection();
+        }
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getEmail()
+    {
+        return $this->email;
+    }
+
+    /**
+     * @param mixed $email
+     */
+    public function setEmail($email)
+    {
+        $this->email = $email;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getAddresses()
+    {
+        return $this->addresses;
+    }
+
+    /**
+     * @param mixed $addresses
+     */
+    public function setAddresses($addresses)
+    {
+        $this->addresses = $addresses;
+    }
+
+    public function addAddress(Address $address)
+    {
+        $this->addresses->add($address);
+        return $this;
+    }
+
+
+    /**
+     * @return mixed
+     */
+    public function getTimeline()
+    {
+        return $this->timeline;
+    }
+
+    /**
+     * @param mixed $timeline
+     */
+    public function setTimeline($timeline)
+    {
+        $this->timeline = $timeline;
+    }
+}

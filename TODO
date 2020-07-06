@@ -1,0 +1,16 @@
+||||||||||||||||||||||||||||||||||||||||||||||||
+|| FACTORIZATIONS TO MAKE IT REUSABLE FULLY : ||
+||||||||||||||||||||||||||||||||||||||||||||||||
+
+SERVICES:
+---------
+
+    - base.document.validation.handler
+
+
+
+GLOBAL DEPENDENCIES:
+
+    - create external "us/api-bundle" with all the stuff used at the moment in UsAPIBundle and
+      ... which is reusable (That would be potentially common with perso ex. StorE project api)
+

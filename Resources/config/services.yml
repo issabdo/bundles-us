@@ -1,0 +1,63 @@
+services:
+#    .security.example:
+#        class: Us\Bundle\SecurityBundle\Example
+#        arguments: ["@service_id", "plain_value", "%parameter%"]
+
+    api_user_provider:
+        class: Us\Bundle\SecurityBundle\Document\UserProvider
+        arguments: ["@doctrine_mongodb"]
+
+#    api.request.listener:
+    api.request.listener:
+        class: Us\Bundle\SecurityBundle\Listener\RequestListener
+        arguments: [ "@event_dispatcher", "@service_container" , "@doctrine_mongodb"]
+        tags:
+            - { name: kernel.event_listener, event: kernel.controller, method: onKernelController }
+
+    api.exception.listener:
+        class: Us\Bundle\SecurityBundle\Listener\ExceptionListener
+        arguments: [ "@event_dispatcher", "@logger"]
+        tags:
+            - { name: kernel.event_listener, event: kernel.exception, method: onKernelException }
+
+    api.authorizer:
+        class: Us\Bundle\SecurityBundle\Business\AccessSecurity\Authorizer
+        arguments:
+            - "@event_dispatcher"
+
+    us.api.jwt.security.authentication.listener:
+        class: Us\Bundle\SecurityBundle\Listener\UsAPIJWTListener
+        arguments: [ "@security.token_storage", "@security.authentication.manager", ""]
+        calls:
+            - [setDispatcher, ["@event_dispatcher"]]
+            - [setContainer, ["@service_container"]]
+
+    us.api.document.validation.handler:
+        class: Us\Bundle\SecurityBundle\Handler\DocumentValidationHandler
+        arguments: [ "@service_container", "@doctrine_mongodb", "@event_dispatcher"]
+
+    us.api.auth.subscriber.api:
+        class: Us\Bundle\SecurityBundle\Subscriber\AuthSubscriberApi
+        arguments: [ "@service_container", "@event_dispatcher", "@doctrine_mongodb", "@kernel"]
+        calls:
+            - [setRequest, ["@request_stack"]]
+        tags:
+            - { name: kernel.event_subscriber }
+
+    us.api.auth.subscriber.ui:
+        class: Us\Bundle\SecurityBundle\Subscriber\AuthSubscriberUi
+        arguments: [ "@service_container", "@event_dispatcher", "@doctrine_mongodb", "@kernel"]
+        calls:
+            - [setRequest, ["@request_stack"]]
+        tags:
+            - { name: kernel.event_subscriber }
+
+    us_jwt_authentication.jwt_token_authenticator.api:
+        class: Us\Bundle\SecurityBundle\Business\AccessSecurity\USJWTTokenAuthenticatorApi
+        arguments: ["@lexik_jwt_authentication.jwt_manager", "@event_dispatcher", "@lexik_jwt_authentication.extractor.chain_extractor"]
+#        parent: lexik_jwt_authentication.jwt_token_authenticator
+
+    us_jwt_authentication.jwt_token_authenticator.ui:
+        class: Us\Bundle\SecurityBundle\Business\AccessSecurity\USJWTTokenAuthenticatorUi
+        arguments: ["@lexik_jwt_authentication.jwt_manager", "@event_dispatcher", "@lexik_jwt_authentication.extractor.chain_extractor"]
+#        parent: lexik_jwt_authentication.jwt_token_authenticator
